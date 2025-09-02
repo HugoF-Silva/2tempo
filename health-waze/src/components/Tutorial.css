@@ -1,0 +1,114 @@
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+}
+
+.tutorial-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.tutorial-highlight {
+  position: absolute;
+  background-color: transparent;
+  border: 3px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+  animation: pulse 2s infinite;
+  z-index: 1;
+}
+
+.tutorial-content {
+  position: absolute;
+  background-color: white;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  max-width: 320px;
+  z-index: 2;
+}
+
+.tutorial-message {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.tutorial-finger {
+  position: absolute;
+  font-size: 2rem;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  z-index: 3;
+}
+
+@keyframes tap {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+@keyframes swipe {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(20px);
+  }
+}
+
+.tutorial-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.tutorial-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tutorial-button--primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.tutorial-button--primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.tutorial-button--secondary {
+  background-color: var(--color-gray-200);
+  color: var(--color-primary);
+}
+
+.tutorial-button--secondary:hover {
+  background-color: var(--color-gray-300);
+}
+
+.tutorial-button--text {
+  background-color: transparent;
+  color: var(--color-gray-500);
+  text-decoration: underline;
+}
+
+.tutorial-button--text:hover {
+  color: var(--color-gray-600);
+}

@@ -1,0 +1,31 @@
+.account-button {
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.account-button:hover {
+  background-color: var(--color-primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.account-button:active {
+  transform: translateY(0);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .account-button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}

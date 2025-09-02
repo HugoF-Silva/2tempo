@@ -1,0 +1,66 @@
+.text-input-wrapper {
+  width: 100%;
+  position: relative;
+  animation: fadeIn 0.8s ease-out 0.4s both;
+}
+
+.text-input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  resize: none;
+  transition: all var(--transition-base);
+  color: var(--color-primary);
+  background-color: white;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(10, 204, 177, 0.1);
+}
+
+.text-input::placeholder {
+  color: var(--color-gray-400);
+}
+
+/* Default variant */
+.text-input--default {
+  min-height: 120px;
+  padding-bottom: 2.5rem;
+}
+
+/* Compact variant */
+.text-input--compact {
+  min-height: 40px;
+  max-height: 80px;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+}
+
+.char-counter {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+  background-color: white;
+  padding: 0 0.25rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .text-input--default {
+    min-height: 100px;
+    font-size: 0.875rem;
+  }
+  
+  .char-counter {
+    font-size: 0.75rem;
+    bottom: 0.75rem;
+    right: 0.75rem;
+  }
+}

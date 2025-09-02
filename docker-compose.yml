@@ -1,0 +1,127 @@
+# docker-compose.yml (fixed)
+services:
+  # Local DynamoDB
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: health-waze-dynamodb
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    environment:
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - AWS_DEFAULT_REGION=us-east-1
+    networks: 
+      - health-waze-network
+
+  # DynamoDB Admin UI
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    container_name: health-waze-dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb-local:8000
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+    depends_on:
+      - dynamodb-local
+    networks: 
+      - health-waze-network
+
+  # Backend API (Serverless Offline)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: health-waze-backend
+    ports:
+      - "3001:3001"   # HTTP (Serverless Offline)
+      - "3002:3002"   # WebSocket (Serverless Offline)
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - AWS_DEFAULT_REGION=us-east-1
+      - DYNAMODB_ENDPOINT=http://dynamodb-local:8000
+      - JWT_SECRET=local-development-secret
+      - USERS_TABLE=health-waze-users-dev
+      - SESSIONS_TABLE=health-waze-sessions-dev
+      - CENTRES_TABLE=health-waze-centres-dev
+      - LEDGER_TABLE=health-waze-ledger-dev
+      - ENTITLEMENTS_TABLE=health-waze-entitlements-dev
+      - CONNECTIONS_TABLE=health-waze-connections-dev
+      - IS_OFFLINE=true
+    depends_on:
+      - dynamodb-local
+    # IMPORTANT: bind to 0.0.0.0 and set explicit ports so other containers can reach it
+    command: sh -lc "npx serverless offline start --stage dev --httpPort 3001 --lambdaPort 3002 --host 0.0.0.0"
+    networks: 
+      - health-waze-network
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./health-waze
+      dockerfile: Dockerfile.claude
+    container_name: health-waze-frontend
+    # CRA listens on 3000 inside the container; expose it on host:3003
+    ports:
+      - "3003:3000"
+    volumes:
+      - ./health-waze/src:/app/src
+      - ./health-waze/public:/app/public
+      - /app/node_modules
+    environment:
+      - HOST=0.0.0.0        # ensure CRA binds externally
+      - PORT=3000
+      - REACT_APP_API_URL=http://localhost:3001
+      - REACT_APP_WS_URL=ws://localhost:3002
+      - CHOKIDAR_USEPOLLING=true
+    # depends_on:
+      # - backend
+    command: npm start
+    networks: 
+      - health-waze-network
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: health-waze-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks: 
+      - health-waze-network
+
+  # LocalStack for AWS services emulation (optional, disabled by default)
+  localstack:
+    profiles: ["localstack"]  # will NOT start unless you pass --profile localstack
+    image: localstack/localstack:latest
+    container_name: health-waze-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs,cognito
+      - DEBUG=1
+      # put data into /var/lib/localstack instead of /tmp to avoid the "device busy" crash
+      - LOCALSTACK_VOLUME_DIR=/var/lib/localstack
+    volumes:
+      - "./docker/localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks: 
+      - health-waze-network
+
+volumes:
+  redis-data:
+
+networks:
+  health-waze-network:
+    name: health-waze-network

@@ -1,0 +1,296 @@
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-gray-50);
+}
+
+.profile-content {
+  flex: 1;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.profile-subtitle {
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--color-gray-600);
+  text-align: center;
+  margin: 0;
+}
+
+.account-box {
+  width: 100%;
+  background-color: white;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.account-field {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.account-field:last-child {
+  border-bottom: none;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  margin-bottom: 0.5rem;
+}
+
+.field-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-value {
+  font-size: 1rem;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.change-button,
+.change-password-button {
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.change-button:hover,
+.change-password-button:hover {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.field-edit {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.field-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--color-primary);
+}
+
+.save-button,
+.cancel-button {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.save-button {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.save-button:hover {
+  background-color: var(--color-success);
+  opacity: 0.9;
+}
+
+.cancel-button {
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-600);
+}
+
+.cancel-button:hover {
+  background-color: var(--color-gray-300);
+}
+
+.policy-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.policy-link:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.logout-button {
+  padding: 0.875rem 2rem;
+  background-color: var(--color-gray-200);
+  color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.logout-button:hover {
+  background-color: var(--color-gray-300);
+  transform: translateY(-1px);
+}
+
+.danger-zone {
+  width: 100%;
+  margin-top: 2rem;
+  padding-top: 2rem;
+}
+
+.danger-divider {
+  font-size: 0.875rem;
+  color: var(--color-danger);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-danger);
+}
+
+.delete-account-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: white;
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.delete-account-button:hover {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+/* Delete confirmation dialog */
+.delete-dialog {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  max-width: 400px;
+  position: relative;
+  animation: slideUp 0.3s ease-out;
+}
+
+.dialog-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  color: var(--color-gray-500);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dialog-close:hover {
+  color: var(--color-gray-700);
+}
+
+.delete-dialog h3 {
+  font-size: 1.125rem;
+  color: var(--color-primary);
+  margin: 0 0 1rem 0;
+  padding-right: 2rem;
+}
+
+.delete-dialog p {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  margin: 0 0 1rem 0;
+}
+
+.password-input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--color-danger);
+}
+
+.confirm-delete-button {
+  width: 100%;
+  padding: 0.875rem;
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.confirm-delete-button:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.confirm-delete-button:disabled {
+  background-color: var(--color-gray-300);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .profile-content {
+    padding: 1.5rem 0.75rem;
+    gap: 1rem;
+  }
+  
+  .account-box {
+    padding: 1rem;
+  }
+  
+  .field-edit {
+    flex-wrap: wrap;
+  }
+  
+  .field-input {
+    width: 100%;
+  }
+  
+  .save-button,
+  .cancel-button {
+    flex: 1;
+  }
+}

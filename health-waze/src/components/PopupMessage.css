@@ -1,0 +1,111 @@
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.popup-message {
+  background-color: white;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+  animation: popupBounce 0.3s ease-out;
+}
+
+.popup-message--success {
+  border-top: 4px solid var(--color-success);
+}
+
+.popup-message--error {
+  border-top: 4px solid var(--color-danger);
+}
+
+.popup-message--info {
+  border-top: 4px solid var(--color-accent);
+}
+
+.popup-message__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.popup-message__text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.popup-message__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.popup-message__button {
+  padding: 0.625rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 80px;
+}
+
+.popup-message__button--primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.popup-message__button--primary:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.popup-message__button--secondary {
+  background-color: var(--color-gray-200);
+  color: var(--color-primary);
+}
+
+.popup-message__button--secondary:hover {
+  background-color: var(--color-gray-300);
+}
+
+@keyframes popupBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  70% {
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .popup-message {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+  
+  .popup-message__text {
+    font-size: 0.875rem;
+  }
+}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#065952" />
+    <meta name="description" content="Health Waze - Find the least crowded health center near you and save time" />
+    
+    <title>Health Waze - Save Time Finding Healthcare</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTQiIGZpbGw9IiMwNjU5NTIiLz4KPHBhdGggZD0iTTEyIDEwSDE0VjIySDE0VjEwWiIgZmlsbD0iI0ZGRkZGRiIvPgo8cGF0aCBkPSJNMTggMTBIMjBWMTZIMThaIiBmaWxsPSIjRkZGRkZGIi8+Cjwvc3ZnPg==">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Health Waze - Save Time Finding Healthcare" />
+    <meta property="og:description" content="Find the least crowded health center near you and save time" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Health Waze - Save Time Finding Healthcare" />
+    <meta name="twitter:description" content="Find the least crowded health center near you and save time" />
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSJ3aGl0ZSIvPgo8Y2lyY2xlIGN4PSI5MCIgY3k9IjkwIiByPSI3MCIgZmlsbD0iIzA2NTk1MiIvPgo8cGF0aCBkPSJNNjAgNTBINzVWMTMwSDc1VjUwWiIgZmlsbD0iI0ZGRkZGRiIvPgo8cGF0aCBkPSJNMTA1IDUwSDEyMFY5MEgxMDVaIiBmaWxsPSIjRkZGRkZGIi8+Cjwvc3ZnPg==">
+    
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://basemaps.cartocdn.com">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <style>
+        /* Critical CSS for initial render */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #FFFFFF;
+        }
+        
+        #root {
+            min-height: 100vh;
+        }
+        
+        /* Loading state */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #FFFFFF;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #065952;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Prevent FOUC */
+        .no-js {
+            display: none;
+        }
+    </style>
+    <script>
+        // Remove no-js class
+        document.documentElement.classList.remove('no-js');
+    </script>
+</head>
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+</body>
+</html>

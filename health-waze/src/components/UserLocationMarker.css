@@ -1,0 +1,74 @@
+.user-location-marker {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.user-location-pulse {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.user-location-dot {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.user-popup-content {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-primary);
+  font-weight: 500;
+  text-align: center;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .user-location-marker {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .user-location-pulse {
+    top: 7px;
+    left: 7px;
+    width: 22px;
+    height: 22px;
+  }
+  
+  .user-location-dot {
+    top: 13px;
+    left: 13px;
+    width: 10px;
+    height: 10px;
+  }
+}

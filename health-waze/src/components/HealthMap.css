@@ -1,0 +1,73 @@
+.map-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.health-map {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+/* Leaflet overrides */
+.health-map .leaflet-control-container {
+  position: absolute;
+  z-index: 800;
+}
+
+.health-map .leaflet-top {
+  top: 1rem;
+}
+
+.health-map .leaflet-right {
+  right: 1rem;
+}
+
+.health-map .leaflet-left {
+  left: 1rem;
+}
+
+.health-map .leaflet-bottom {
+  bottom: 1rem;
+}
+
+.health-map .leaflet-control {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.health-map .leaflet-bar a {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-gray-200);
+}
+
+.health-map .leaflet-bar a:hover {
+  background-color: var(--color-gray-50);
+}
+
+.health-map .leaflet-control-attribution {
+  background-color: rgba(255, 255, 255, 0.9);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .health-map .leaflet-top {
+    top: 0.5rem;
+  }
+  
+  .health-map .leaflet-right {
+    right: 0.5rem;
+  }
+  
+  .health-map .leaflet-left {
+    left: 0.5rem;
+  }
+  
+  .health-map .leaflet-bottom {
+    bottom: 0.5rem;
+  }
+}

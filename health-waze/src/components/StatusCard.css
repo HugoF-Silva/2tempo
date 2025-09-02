@@ -1,0 +1,96 @@
+.status-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-gray-200);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-height: 80px;
+  flex: 1;
+}
+
+.status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.status-card--fullness {
+  border-width: 3px;
+}
+
+.status-card--doctors {
+  background-color: var(--color-gray-50);
+  gap: 0.5rem;
+}
+
+.status-card__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.status-card__text {
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Corner arrows for interactive cards */
+.corner-arrow {
+  position: absolute;
+  bottom: 0.5rem;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all var(--transition-base);
+  z-index: 2;
+}
+
+.corner-arrow--left {
+  left: 0.5rem;
+}
+
+.corner-arrow--right {
+  right: 0.5rem;
+}
+
+.status-card:hover .corner-arrow {
+  opacity: 1;
+}
+
+.corner-arrow:hover {
+  background-color: var(--color-primary-dark);
+  transform: scale(1.1);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .status-card {
+    padding: 1rem 0.75rem;
+    min-height: 70px;
+  }
+  
+  .status-card__text {
+    font-size: 0.875rem;
+  }
+  
+  .corner-arrow {
+    opacity: 1;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+  }
+}

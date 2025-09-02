@@ -1,0 +1,125 @@
+.help-add-medicine {
+  background-color: white;
+}
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-label {
+  font-size: 1rem;
+  color: var(--color-primary);
+  text-align: center;
+  margin: 0;
+}
+
+.medicines-input-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.medicine-input-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.medicine-input {
+  flex: 1;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--color-primary);
+  transition: all var(--transition-base);
+}
+
+.medicine-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(10, 204, 177, 0.1);
+}
+
+.medicine-input::placeholder {
+  color: var(--color-gray-400);
+}
+
+.remove-button {
+  width: 36px;
+  height: 36px;
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-button:hover {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+.add-more-button {
+  align-self: center;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  margin-top: 0.5rem;
+}
+
+.add-more-button:hover:not(:disabled) {
+  background-color: var(--color-accent);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.add-more-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--color-gray-300);
+  color: var(--color-gray-400);
+}
+
+.limit-message {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  text-align: center;
+  font-style: italic;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .medicine-input {
+    padding: 0.75rem;
+    font-size: 0.8125rem;
+  }
+  
+  .remove-button {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+  
+  .add-more-button {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.8125rem;
+  }
+}

@@ -1,0 +1,16 @@
+.account-pages {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-gray-50);
+}
+
+.header-spacer {
+  width: 32px;
+  height: 32px;
+}
+
+.account-label {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+}

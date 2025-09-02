@@ -1,0 +1,24 @@
+.help-available-treatment {
+  background-color: white;
+}
+
+.treatment-input {
+  width: 100%;
+  min-height: 150px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .treatment-input {
+    min-height: 120px;
+    font-size: 0.875rem;
+  }
+}

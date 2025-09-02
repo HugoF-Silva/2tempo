@@ -1,0 +1,91 @@
+/* Overlay stays full-screen */
+.navigation-app-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: flex-end;  /* align dialog to bottom */
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Bottom-sheet style dialog */
+.navigation-app-picker-dialog {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-height: 80vh;
+  background: #fff;
+  padding: 1rem 1rem env(safe-area-inset-bottom) 1rem; /* support iOS notch */
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(100%);
+  animation: slideUp 0.4s var(--transition-fast) forwards;
+  text-align: center;
+}
+
+/* Slide-up keyframes */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Header */
+.navigation-app-picker-header {
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+/* List of apps: full-width buttons, stacked */
+.navigation-app-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Buttons span full width for big touch targets */
+.navigation-app-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  cursor: pointer;
+}
+
+/* Standard icon size */
+.navigation-app-button img {
+  width: 24px;
+  height: 24px;
+}
+
+/* App-specific colors */
+.navigation-app-button.google { background: #4285F4; }
+.navigation-app-button.waze   { background: #33CCFF; }
+.navigation-app-button.uber   { background: #000; }
+
+/* Tap feedback */
+.navigation-app-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.navigation-app-button:active {
+  transform: scale(0.98);
+}
+
+/* Fade-in for overlay */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

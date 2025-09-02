@@ -1,0 +1,25 @@
+.logo {
+  animation: fadeIn 0.6s ease-out;
+  filter: drop-shadow(0 2px 4px rgba(6, 89, 82, 0.1));
+  transition: transform var(--transition-base);
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.logo--small {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .logo--large {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .logo--small {
+    width: 60px;
+    height: 60px;
+  }
+}

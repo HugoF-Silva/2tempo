@@ -1,0 +1,21 @@
+# Frontend Dockerfile
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+# 1) Copy ONLY the frontend manifests (for layer caching)
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm ci
+
+COPY . .
+
+# Expose port
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
+# Start the app
+CMD ["npm", "start"]

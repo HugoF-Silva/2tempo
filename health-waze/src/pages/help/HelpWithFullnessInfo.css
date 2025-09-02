@@ -1,0 +1,131 @@
+.help-fullness-info {
+  background-color: white;
+}
+
+.fullness-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.history-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.history-time {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  font-weight: 500;
+}
+
+.history-status {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.last-update-card {
+  background-color: var(--color-gray-50);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.last-update-card h3 {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  margin: 0 0 0.5rem 0;
+}
+
+.update-time {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.status-selection {
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+
+.selection-title {
+  font-size: 1rem;
+  color: var(--color-primary);
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.status-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: white;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.status-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.status-card.selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(10, 204, 177, 0.1);
+}
+
+.status-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .fullness-history {
+    max-height: 200px;
+  }
+  
+  .status-selection {
+    padding: 1rem;
+  }
+  
+  .status-card {
+    padding: 0.875rem;
+  }
+  
+  .status-label {
+    font-size: 0.875rem;
+  }
+}

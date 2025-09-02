@@ -1,0 +1,126 @@
+.health-marker {
+  position: relative;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.health-marker:hover {
+  z-index: 1000;
+}
+
+.health-marker--highlighted {
+  z-index: 500;
+}
+
+.health-marker--selected {
+  z-index: 1500;
+}
+
+.marker-pin {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.marker-pin svg {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
+  transition: transform var(--transition-base);
+}
+
+.health-marker:hover .marker-pin svg {
+  transform: scale(1.1);
+}
+
+.health-marker--highlighted .marker-pin svg {
+  transform: scale(1.15);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.health-marker--selected .marker-pin svg {
+  transform: scale(1.2);
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
+}
+
+.highlight-ring {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border: 3px solid var(--color-accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  pointer-events: none;
+}
+
+/* Popup styles */
+.health-popup .popup-content {
+  padding: 1rem;
+  min-width: 200px;
+}
+
+.health-popup h3 {
+  color: var(--color-primary);
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.status-text {
+  color: var(--color-gray-600);
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+}
+
+.wait-time {
+  color: var(--color-gray-500);
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.wait-time::before {
+  content: '⏱';
+  font-size: 1rem;
+}
+
+.best-choice {
+  color: var(--color-success);
+  font-weight: 500;
+  margin: 0;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  background-color: #f0fdf4;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .marker-pin {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .marker-pin svg {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .health-popup .popup-content {
+    padding: 0.75rem;
+    min-width: 180px;
+  }
+  
+  .health-popup h3 {
+    font-size: 0.875rem;
+  }
+  
+  .status-text,
+  .wait-time,
+  .best-choice {
+    font-size: 0.75rem;
+  }
+}

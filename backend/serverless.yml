@@ -1,0 +1,166 @@
+service: health-waze-api
+
+provider:
+  name: aws
+  runtime: python3.12
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  
+  environment:
+    USERS_TABLE: health-waze-users-${sls:stage}
+    SESSIONS_TABLE: health-waze-sessions-${sls:stage}
+    CENTRES_TABLE: health-waze-centres-${sls:stage}
+    LEDGER_TABLE: health-waze-ledger-${sls:stage}
+    ENTITLEMENTS_TABLE: health-waze-entitlements-${sls:stage}
+    JWT_SECRET: ${env:JWT_SECRET, 'dev-secret'}
+    API_KEYS: ${env:API_KEYS, '["local-123"]'}
+    
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SESSIONS_TABLE}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CENTRES_TABLE}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.LEDGER_TABLE}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ENTITLEMENTS_TABLE}"
+
+functions:
+  api:
+    handler: lambda/api_handler.lambda_handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: '*'
+    timeout: 40
+    memorySize: 256
+
+  validator:
+    handler: lambda/validator.lambda_handler
+    events:
+      - schedule:
+          rate: rate(30 minutes)
+          enabled: true
+    timeout: 40
+    memorySize: 512
+
+  statusUpdater:
+    handler: lambda/status_updater.lambda_handler
+    events:
+      - schedule:
+          rate: rate(1 hour)
+          enabled: true
+    timeout: 40
+    memorySize: 256
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.USERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+    SessionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.SESSIONS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: session_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: session_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+
+    CentresTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CENTRES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    LedgerTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.LEDGER_TABLE}
+        AttributeDefinitions:
+          - AttributeName: ledger_id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ledger_id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: user-timestamp-index
+            KeySchema:
+              - AttributeName: user_id
+                KeyType: HASH
+              - AttributeName: timestamp
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    EntitlementsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.ENTITLEMENTS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: entitlement_id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: entitlement_id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: user-index
+            KeySchema:
+              - AttributeName: user_id
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+
+plugins:
+  - serverless-python-requirements
+  - serverless-offline
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    layer: true
+  serverless-offline:
+    # ensure the offline runner uses the same interpreter as your venv
+    pythonBin: /opt/venv/bin/python

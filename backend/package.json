@@ -1,0 +1,31 @@
+{
+  "name": "health-waze-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Health Waze - Server-driven health center finder",
+  "main": "handler.js",
+  "scripts": {
+    "dev": "serverless offline start --stage dev",
+    "deploy:dev": "serverless deploy --stage dev",
+    "deploy:staging": "serverless deploy --stage staging",
+    "deploy:prod": "serverless deploy --stage prod",
+    "seed:local": "AWS_REGION=us-east-1 DYNAMODB_ENDPOINT=http://localhost:8000 python scripts/setup_local_db.py",
+    "test": "pytest tests/",
+    "lint": "pylint lambda/",
+    "format": "black lambda/",
+    "logs:api": "serverless logs -f api -t --stage dev",
+    "logs:validator": "serverless logs -f validator -t --stage dev",
+    "invoke:validator": "serverless invoke local -f validator --stage dev"
+  },
+  "devDependencies": {
+    "serverless": "^3.30.0",
+    "serverless-offline": "^12.0.4",
+    "serverless-python-requirements": "^6.0.0",
+    "serverless-wsgi": "^3.0.2",
+    "serverless-dynamodb-local": "^0.2.40"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1360.0"
+  },
+  "author": "Health Waze Team",
+  "license": "MIT"
+}
