@@ -48,18 +48,18 @@ const MapPage = () => {
 
   // Request location on mount if not already available
   useEffect(() => {
-    if (!userLocation && !showLocationModal) {
+    if (!userLocation && !showLocationModal && serverState.pins.length === 0) {
       setShowLocationModal(true);
     }
-  }, [userLocation, showLocationModal]);
+  }, [userLocation, showLocationModal, serverState.pins.length]);
 
   // Handle location permission response
   const handleLocationResponse = useCallback(async (granted) => {
     setShowLocationModal(false);
-    if (granted) {
-      await navigateToMap(description.length > 0);
-    }
-  }, [navigateToMap, description]);
+   if (granted && serverState.pins.length === 0) {
+     await navigateToMap(description.length > 0);
+   }
+  }, [navigateToMap, description, serverState.pins.length]);
 
   // Handle refresh
   const handleRefresh = async () => {

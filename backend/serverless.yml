@@ -158,9 +158,14 @@ plugins:
   - serverless-offline
 
 custom:
+  serverless-offline:
+    httpPort: 3001
+    websocketPort: 3002
+    host: 0.0.0.0
+    # defensive: disable idle cleanup (where the crash happens)
+    terminateIdleLambdaTime: 0
   pythonRequirements:
     dockerizePip: true
     layer: true
-  serverless-offline:
-    # ensure the offline runner uses the same interpreter as your venv
+    # if you want to pin the interpreter used for packaging:
     pythonBin: /opt/venv/bin/python

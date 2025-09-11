@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import MapPage from './pages/MapPage';
@@ -18,7 +18,8 @@ function AppContent() {
   const location = useLocation();
   const { session, isAuthenticated, login, logout } = useSession();
   const { userLocation, requestLocation } = useGeolocation();
-  
+  const didBootstrapRef = useRef(false);
+
   // Server-driven state
   const [serverState, setServerState] = useState({
     schema: '1',
@@ -37,26 +38,28 @@ function AppContent() {
 
   // Bootstrap on first load
   useEffect(() => {
-    const bootstrap = async () => {
+    if (didBootstrapRef.current) return;
+    didBootstrapRef.current = true;
+
+    (async () => {
       try {
         const response = await apiClient.bootstrap();
-        setServerState(prev => ({
-          ...prev,
-          ...response
-        }));
-        
-        if (response.shows && response.shows !== location.pathname.slice(1)) {
-          navigate(`/${response.shows}`);
+        setServerState(prev => ({ ...prev, ...response }));
+
+        // Only let /bootstrap drive navigation when we’re on the entry routes.
+        const here = location.pathname || '/';
+        const isEntry = here === '/' || here === '/home';
+        const target = `/${response.shows || 'home'}`;
+        if (isEntry && target !== here) {
+          navigate(target, { replace: true });
         }
       } catch (error) {
         console.error('Bootstrap failed:', error);
       } finally {
         setIsLoading(false);
       }
-    };
-    
-    bootstrap();
-  }, [navigate, location.pathname]);
+    })();
+  }, []); // intentionally empty deps (run once)
 
   // Execute CTA with server token
   const executeCTA = useCallback(async (ctaId, token, payload = {}) => {
@@ -82,10 +85,11 @@ function AppContent() {
   const navigateToMap = useCallback(async (withDescription) => {
     try {
       setIsLoading(true);
-      await requestLocation(); // Request location first
-      
-      const flowData = await apiClient.getMapFlow({
-        location: userLocation,
+     const loc = await requestLocation(); // <-- assume hook returns {lat,lng} or null
+     const locationToUse = loc || userLocation || null;
+
+     const flowData = await apiClient.getMapFlow({
+       location: locationToUse,
         symptoms: withDescription ? description : undefined
       });
       

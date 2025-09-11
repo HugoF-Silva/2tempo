@@ -6,9 +6,10 @@ services:
     container_name: health-waze-dynamodb
     ports:
       - "8000:8000"
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    command: ["-jar","DynamoDBLocal.jar","-sharedDb","-dbPath","/home/dynamodblocal/data"]
     volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data"
+      - ./dynamodb_data:/home/dynamodblocal/data
+    working_dir: /home/dynamodblocal
     environment:
       - AWS_ACCESS_KEY_ID=local
       - AWS_SECRET_ACCESS_KEY=local
@@ -45,6 +46,7 @@ services:
       - ./backend:/app
       - /app/node_modules
     environment:
+      - SERVERLESS_ACCESS_KEY=${SERVERLESS_ACCESS_KEY}
       - AWS_ACCESS_KEY_ID=local
       - AWS_SECRET_ACCESS_KEY=local
       - AWS_DEFAULT_REGION=us-east-1
@@ -121,6 +123,7 @@ services:
 
 volumes:
   redis-data:
+  dynamodb_data: {}   # <= this declares the named volume (Compose will create it)
 
 networks:
   health-waze-network:

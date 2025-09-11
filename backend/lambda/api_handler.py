@@ -111,6 +111,10 @@ def lambda_handler(event, context):
     """Main Lambda handler with routing (works for REST v1 and HTTP v2)"""
     # Path
     path = event.get('path') or event.get('rawPath') or '/'
+    for prefix in ('/dev', '/prod', '/staging'):
+        if path.startswith(prefix + '/'):
+            path = path[len(prefix):]
+            break
 
     # Method
     if 'httpMethod' in event:  # REST v1
@@ -206,76 +210,161 @@ def handle_bootstrap(body: Dict, session_token: Optional[str]) -> Dict:
         'body':json_dumps_safe(response)
     }
 
+# small hot-cache with TTL; survives across warm invocations
+_CENTRES_CACHE = {
+    "items": None,
+    "expires_at": 0.0,
+    "ttl_seconds": 30.0,   # tune as you like; centres are basically static
+}
+
+def _now_epoch() -> float:
+    return time.time()
+
+def _normalize_centre_item(it: Dict) -> Optional[Dict]:
+    """
+    Convert a raw DynamoDB item to a normalized centre dict.
+    Skips malformed/disabled records gracefully.
+    """
+    if not it or it.get("disabled") is True:
+        return None
+
+    try:
+        lat = float(it["lat"])
+        lng = float(it["lng"])
+    except (KeyError, TypeError, ValueError):
+        # Skip if location is missing or invalid
+        return None
+
+    return {
+        "id": it["id"],
+        "name": it.get("name", it["id"]),
+        "lat": lat,
+        "lng": lng,
+        "type": it.get("type", "A"),
+        # Status fields are optional; keep as-is if present
+        "status": it.get("status"),
+        "last_update": it.get("last_update"),
+    }
+
+def get_all_centres() -> List[Dict]:
+    """
+    Return every centre (as normalized dicts) from DynamoDB.
+    Uses a short in-memory cache for warm Lambda invocations.
+    """
+    global _CENTRES_CACHE
+    if _CENTRES_CACHE["items"] and _now_epoch() < _CENTRES_CACHE["expires_at"]:
+        return _CENTRES_CACHE["items"]
+
+    items: List[Dict] = []
+    scan_kwargs: Dict = {}
+    while True:
+        resp = centres_table.scan(**scan_kwargs)
+        items.extend(resp.get("Items", []))
+        lek = resp.get("LastEvaluatedKey")
+        if not lek:
+            break
+        scan_kwargs["ExclusiveStartKey"] = lek
+
+    centres: List[Dict] = []
+    for it in items:
+        n = _normalize_centre_item(it)
+        if n:
+            centres.append(n)
+
+    # cache the normalized list
+    _CENTRES_CACHE["items"] = centres
+    _CENTRES_CACHE["expires_at"] = _now_epoch() + _CENTRES_CACHE["ttl_seconds"]
+    return centres
+
+def get_centre(centre_id: str) -> Optional[Dict]:
+    """Fetch a single centre by id (normalized)."""
+    resp = centres_table.get_item(Key={"id": centre_id})
+    it = resp.get("Item")
+    return _normalize_centre_item(it) if it else None
+
+def get_unlocked_centres(user_id: str) -> List[str]:
+    """
+    Minimal implementation: read a 'unlocked_centres' list from the user item.
+    If absent, return empty list (pins will still render as locked).
+    """
+    try:
+        resp = users_table.get_item(Key={"user_id": user_id}, ProjectionExpression="unlocked_centres")
+        item = resp.get("Item") or {}
+        unlocked = item.get("unlocked_centres") or []
+        # DynamoDB string sets may arrive as set(...); normalize to list
+        return list(unlocked) if not isinstance(unlocked, list) else unlocked
+    except Exception:
+        return []
+
+def check_can_earn_by_info(user_id: str, radius_ctx: Dict) -> bool:
+    """
+    Conservative stub so low-balance overlay logic won't crash.
+    You can expand this later with the full rules you outlined.
+    """
+    return bool(radius_ctx.get("radius1_centres") or radius_ctx.get("radius2_centres"))
+
 def handle_flow_map(body: Dict, session_token: str) -> Dict:
-    """Handle map flow - returns pins and highlights based on context"""
-    # session = get_session(session_token)
     session = get_or_create_session(session_token)
     user_state = get_user_state(session['user_id'])
     location = body.get('location')
-    symptoms = body.get('symptoms')
-    
-    # Get all centres
-    # centres = get_all_centres()
-    
-    # Get user's radius context
-    # radius_context = get_user_radius_context(location, centres)
-    
-    # Get user's unlocked centres
-    # unlocked_centres = get_unlocked_centres(session['user_id'])
-    
-    # Build pins data
+
+    centres = get_all_centres()                  # ← implemented
+    radius_ctx = get_user_radius_context(location, centres)
+    unlocked = get_unlocked_centres(session['user_id'])  # ← implemented
+
     pins = []
-    # for centre in centres:
-    #     pin = {
-    #         'id': centre['id'],
-    #         'name': centre['name'],
-    #         'lat': float(centre['lat']),
-    #         'lng': float(centre['lng']),
-    #         'locked': centre['id'] not in unlocked_centres,
-    #         'type': centre['type']
-    #     }
-        
-    #     # Add status if unlocked or in radius1
-    #     if not pin['locked'] or centre['id'] in radius_context['radius1_centres']:
-    #         pin['status'] = centre['status']
-    #         pin['lastUpdate'] = centre['last_update']
-        
-    #     pins.append(pin)
-    
-    # Determine highlights based on symptoms
+    for c in centres:
+        pin = {
+            'id': c['id'],
+            'name': c['name'],
+            'lat': float(c['lat']),
+            'lng': float(c['lng']),
+            'locked': c['id'] not in unlocked,
+            'type': c.get('type', 'A'),
+        }
+        # status only when unlocked or user currently in radius1 (read rules)
+        if (not pin['locked']) or (c['id'] in radius_ctx['radius1_centres']):
+            pin['status'] = c.get('status')
+            pin['lastUpdate'] = c.get('last_update')
+        pins.append(pin)
+
     highlights = []
-    # if symptoms:
-        # Mock logic - would use NLP/matching in real app
-        # highlights = recommend_centres_for_symptoms(symptoms, centres, unlocked_centres)
-    
-    # Build response
+
+    entitlements = []
+    if user_state.get('balance', 0) >= DISCOVER_COST:
+        for c in centres:
+            if c['id'] in unlocked:
+                continue
+            entitlements.append({
+                'cta': 'discover',
+                'centre_id': c['id'],
+                'token': generate_cta_token(
+                    session['user_id'], 'discover', c['id'], radius_ctx['radius3_count']
+                ),
+                'limit': '1/h',
+            })
+
     response = {
         'schema': '1',
         'pins': pins,
         'highlights': highlights,
         'overlays': [],
+        'entitlements': entitlements,
         'pages_after': None
     }
-    
-    # Handle first access location bonus
+
     if location and user_state.get('first_location_shared') is None:
-        # Award first location bonus
         credit_user_balance(session['user_id'], FIRST_LOCATION_BONUS, 'first_location_share')
-        
         response['overlays'].append({
             'type': 'success',
             'message': 'Congrats! You earned 1 hour.',
             'position': {'top': '20%', 'left': '50%'}
         })
-        
-        # Update user state
         users_table.update_item(
             Key={'user_id': session['user_id']},
             UpdateExpression='SET first_location_shared = :true',
             ExpressionAttributeValues={':true': True}
         )
-        
-        # Add tutorial for first map access
         response['tutorial'] = {
             'map': [
                 {
@@ -285,13 +374,11 @@ def handle_flow_map(body: Dict, session_token: str) -> Dict:
                 }
             ]
         }
-    
-    # Check for low balance CTA
-    if user_state['balance'] < DISCOVER_COST:
-        # can_earn = check_can_earn_by_info(session['user_id'], radius_context)
-        
-        # if can_earn:
-        if True:
+
+    if user_state.get('balance', 0) < DISCOVER_COST:
+        # FIX: use radius_ctx (not radius_context)
+        can_earn = check_can_earn_by_info(session['user_id'], radius_ctx)
+        if can_earn:
             response['overlays'].append({
                 'type': 'cta',
                 'copy_key': 'It seems you don\'t have enough Time $aved',
@@ -300,11 +387,11 @@ def handle_flow_map(body: Dict, session_token: str) -> Dict:
                 ],
                 'anchor': 'balance'
             })
-    
+
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json'},
-        'body': json.dumps(response)
+        'body': json_dumps_safe(response)   # safer for any Decimal left around
     }
 
 def json_dumps_safe(obj):
