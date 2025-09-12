@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 import boto3
 import jwt
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 
 # DynamoDB tables
 DDB_ENDPOINT = os.environ.get('DYNAMODB_ENDPOINT')
@@ -148,6 +148,8 @@ def lambda_handler(event, context):
             if cookie.startswith('session='):
                 session_token = cookie.split('=', 1)[1]
                 break
+    if not session_token and auth and auth.startswith('Bearer '):
+        session_token = auth.split(' ', 1)[1]
     
     # Route to appropriate handler
     if path == '/bootstrap' and method == 'POST':
@@ -157,18 +159,63 @@ def lambda_handler(event, context):
     elif path.startswith('/centre/') and path.endswith('/open') and method == 'POST':
         centre_id = path.split('/')[2]
         return handle_open_centre(centre_id, body, session_token)
+    elif path.startswith('/centre/') and path.endswith('/read') and method == 'GET':
+        centre_id = path.split('/')[2]
+        return handle_centre_read(centre_id, session_token)
     elif path == '/cta/execute' and method == 'POST':
         return handle_cta_execute(body, session_token)
     elif path == '/flow/nudges' and method == 'POST':
         return handle_nudges(body, session_token)
     elif path == '/help/plan' and method == 'POST':
         return handle_help_plan(body, session_token)
-    else:
+
+    return {
+        "statusCode": 404,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"error": "Not found"})
+    }
+
+def _to_int(v, default=0):
+    if isinstance(v, Decimal):
+        return int(v)
+    try:
+        return int(v)
+    except Exception:
+        return default
+    
+def handle_centre_read(centre_id: str, session_token: Optional[str]) -> Dict:
+    """
+    Read-only payload for X:readStatusPage.
+    Keeps rules on the server; returns presentation fields only.
+    """
+    # Ensure we have (or mint) a session; you may also set a cookie in other handlers
+    _ = get_or_create_session(session_token)
+
+    resp = centres_table.get_item(Key={"id": centre_id})
+    item = resp.get("Item")
+    if not item:
         return {
-            'statusCode': 404,
-            'body': json.dumps({'error': 'Not found'})
+            "statusCode": 404,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"error": "centre not found"})
         }
 
+    # Build the shape the frontend expects
+    data = {
+        "id": item["id"],
+        "name": item.get("name", item["id"]),
+        "status": item.get("status", "average"),      # keep simple, no rules leaked
+        "peopleCount": _to_int(item.get("people_count", 0)),
+        "doctorCount": _to_int(item.get("doctor_count", 0)),
+        "medicines": item.get("medicines", []),       # should be a list
+    }
+
+    return {
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps(data)
+    }
+    
 def handle_bootstrap(body: Dict, session_token: Optional[str]) -> Dict:
     """Handle bootstrap - initial app load"""
     # Get or create session
@@ -413,34 +460,32 @@ def handle_open_centre(centre_id: str, body: Dict, session_token: str) -> Dict:
     location = body.get('location')
     
     # Get centre and user context
-    # centre = get_centre(centre_id)
-    # radius_context = get_user_radius_context(location, [centre])
+    centre = get_centre(centre_id)
+    radius_context = get_user_radius_context(location, [centre])
     
     # Determine page type
-    # if centre_id in radius_context['radius1_centres']:
-    #     shows = 'Y'  # ReadWrite page
-    #     entitlements = generate_write_entitlements(
-    #         session['user_id'],
-    #         centre_id,
-    #         centre['type'],
-    #         radius_context['radius3_count']
-    #     )
-    # else:
-    #     shows = 'X'  # ReadOnly page
-    #     entitlements = []
+    if centre_id in radius_context['radius1_centres']:
+        shows = 'Y'  # ReadWrite page
+        entitlements = generate_write_entitlements(
+            session['user_id'],
+            centre_id,
+            centre['type'],
+            radius_context['radius3_count']
+        )
+    else:
+        shows = 'X'  # ReadOnly page
+        entitlements = []
     
     # Auto-unlock if in radius1
-    # if centre_id in radius_context['radius1_centres']:
-        # unlock_centre(session['user_id'], centre_id, 'radius1')
+    if centre_id in radius_context['radius1_centres']:
+        unlock_centre(session['user_id'], centre_id, 'radius1')
     
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json'},
         'body': json.dumps({
-            # 'shows': shows,
-            'shows': 'X',
-            # 'entitlements': entitlements
-            'entitlements': []
+            'shows': shows,
+            'entitlements': entitlements
         })
     }
 
@@ -467,7 +512,8 @@ def handle_cta_execute(body: Dict, session_token: str) -> Dict:
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, ValueError) as e:
         return {
             'statusCode': 403,
-            'body': json.dumps({'error': 'Invalid or expired token'})
+            'headers': {'Content-Type': 'application/json'},
+            'body': json_dumps_safe({'error': 'Invalid or expired token'})
         }
     
     # Execute CTA based on type
@@ -478,13 +524,14 @@ def handle_cta_execute(body: Dict, session_token: str) -> Dict:
     else:
         return {
             'statusCode': 400,
-            'body': json.dumps({'error': 'Unknown CTA'})
+            'headers': {'Content-Type': 'application/json'},
+            'body': json_dumps_safe({'error': 'Unknown CTA'})
         }
     
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json'},
-        'body': json.dumps(result)
+        'body': json_dumps_safe(result)
     }
 
 def execute_discover(user_id: str, centre_id: str) -> Dict:
@@ -496,10 +543,10 @@ def execute_discover(user_id: str, centre_id: str) -> Dict:
         raise ValueError('Insufficient balance')
     
     # Deduct cost
-    # debit_user_balance(user_id, DISCOVER_COST, f'discover:{centre_id}')
+    debit_user_balance(user_id, DISCOVER_COST, f'discover:{centre_id}')
     
     # Unlock centre  
-    # unlock_centre(user_id, centre_id, 'radius2')
+    unlock_centre(user_id, centre_id, 'radius2')
     
     # Get updated balance
     new_balance = user_state['balance'] - DISCOVER_COST
@@ -546,10 +593,18 @@ def execute_help_action(user_id: str, cta_id: str, payload: Dict, claims: Dict) 
     
     # Get updated balance
     user_state = get_user_state(user_id)
-    
+    bal = user_state.get('balance', 0)
+    try:
+        # Convert Decimal -> int (or float) explicitly
+        from decimal import Decimal as _D
+        if isinstance(bal, _D):
+            bal = int(bal) if bal % 1 == 0 else float(bal)
+    except Exception:
+        pass
+ 
     return {
         'success': True,
-        'balance': user_state['balance'],
+        'balance': bal,
         # 'earn_amount': format_time_amount(earn_amount),
         'earn_amount': format_time_amount(60),
         'validation_due_at': validation_due_at
@@ -676,4 +731,77 @@ def credit_user_balance(user_id: str, amount: int, reason: str):
         'timestamp': datetime.utcnow().isoformat()
     })
 
-# ... Additional helper functions would be implemented ...
+def debit_user_balance(user_id: str, amount: int, reason: str) -> int:
+    """
+    Atomically subtract `amount` from user balance (non-negative).
+    Returns the updated balance (int).
+    Raises ValueError if insufficient funds or user missing.
+    """
+    if amount <= 0:
+        raise ValueError('Amount must be positive')
+
+    try:
+        resp = users_table.update_item(
+            Key={'user_id': user_id},
+            UpdateExpression='SET balance = if_not_exists(balance, :zero) - :amt',
+            ConditionExpression=Attr('balance').gte(Decimal(amount)),
+            ExpressionAttributeValues={
+                ':amt': Decimal(amount),
+                ':zero': Decimal(0),
+            },
+            ReturnValues='UPDATED_NEW'
+        )
+    except users_table.meta.client.exceptions.ConditionalCheckFailedException:
+        raise ValueError('Insufficient balance')
+
+    # Record in ledger (negative)
+    ledger_table.put_item(Item={
+        'ledger_id': f"{user_id}#{datetime.utcnow().isoformat()}",
+        'user_id': user_id,
+        'amount': -int(amount),
+        'type': 'debit',
+        'reason': reason,
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
+    new_bal = resp.get('Attributes', {}).get('balance', 0)
+    # new_bal may be Decimal
+    return int(new_bal) if isinstance(new_bal, Decimal) else int(new_bal or 0)
+
+def unlock_centre(user_id: str, centre_id: str, scope: str):
+    """
+    Persist unlock for a centre.
+    - Prefers a String Set 'unlocked_centres' (ADD).
+    - Falls back to list if the attribute exists as a list.
+    """
+    # Fast path: ADD to a String Set
+    try:
+        users_table.update_item(
+            Key={'user_id': user_id},
+            UpdateExpression='ADD unlocked_centres :c',
+            ExpressionAttributeValues={
+                ':c': set([centre_id])
+            }
+        )
+        return
+    except users_table.meta.client.exceptions.ValidationException:
+        # Type mismatch (likely a list) -> fall back below
+        pass
+
+    # Fallback: ensure no duplicates, then list_append
+    # Prevent duplicates with a condition
+    try:
+        users_table.update_item(
+            Key={'user_id': user_id},
+            UpdateExpression='SET unlocked_centres = list_append(if_not_exists(unlocked_centres, :empty), :new)',
+            ConditionExpression=Attr('unlocked_centres').not_exists() | Attr('unlocked_centres').contains(centre_id).negate(),
+            ExpressionAttributeValues={
+                ':empty': [],
+                ':new': [centre_id],
+            }
+        )
+    except users_table.meta.client.exceptions.ConditionalCheckFailedException:
+        # Already present in the list -> nothing else to do
+        pass
+
+    # (Optional) You can persist scope/expiry later in a dedicated table as per your full rules.

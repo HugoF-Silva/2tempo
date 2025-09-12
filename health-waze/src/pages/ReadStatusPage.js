@@ -16,6 +16,7 @@ const ReadStatusPage = () => {
   const { serverState } = useApp();
   
   const [centreData, setCentreData] = useState(null);
+  const [loadError, setLoadError] = useState(null);
   const [treatmentSearch, setTreatmentSearch] = useState('');
   const [medicineSearch, setMedicineSearch] = useState('');
   const [showTreatmentResults, setShowTreatmentResults] = useState(false);
@@ -29,8 +30,10 @@ const ReadStatusPage = () => {
     try {
       const response = await apiClient.getCentreReadData(centreId);
       setCentreData(response);
+      setLoadError(null);
     } catch (error) {
       console.error('Failed to load centre data:', error);
+      setLoadError(error.message || 'Failed to load');
     }
   };
   
@@ -68,6 +71,25 @@ const ReadStatusPage = () => {
     navigate(`/centre/${centreId}/medicines`);
   };
 
+  if (loadError) {
+    return (
+      <div className="read-status-page">
+        <div className="page-header">
+          <button className="back-button" onClick={() => navigate('/map')}>←</button>
+          <h1 className="page-title">Unable to load centre</h1>
+          <div className="header-actions">
+            <AccountButton />
+            <BalanceDisplay balance={serverState.balance} />
+          </div>
+        </div>
+        <div className="error-state">
+          <p>{loadError}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  } 
+  
   if (!centreData) {
     return <div className="loading-screen">Loading...</div>;
   }
