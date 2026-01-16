@@ -1,5 +1,5 @@
 # WAZE DO SUS -> www.menostempo.com.br :)
-- recomendamos pra você o hospital + adequado dependendo das suas necessidades
+- recomendamos pra você o hospital + adequado dependendo do que precisa
 
 # Como funciona?
 Explique as suas necessidades, 
