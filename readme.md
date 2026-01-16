@@ -1,5 +1,4 @@
-# menostempo -> www.menostempo.com.br :)
-Esse é o WAZE DO SUS:
+# WAZE DO SUS -> www.menostempo.com.br :)
 - recomendamos pra você o hospital + adequado dependendo das suas necessidades
 
 # Como funciona?
