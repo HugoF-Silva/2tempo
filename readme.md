@@ -1,3 +1,5 @@
+# Entenda o que é a menostempo -> www.menostempo.com.br :)
+
 # Install Backend Deps
 1. cd backend
 1. python3.12 -m venv .env
