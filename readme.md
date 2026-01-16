@@ -1,4 +1,13 @@
-# Entenda o que é a menostempo -> www.menostempo.com.br :)
+# menostempo -> www.menostempo.com.br :)
+Esse é o WAZE DO SUS:
+- recomendamos pra você o hospital + adequado dependendo das suas necessidades
+
+# Como funciona?
+Explique as suas necessidades, 
+> tá com algum sintoma? precisa de algum remédio?
+
+a menostempo acha um hospital próximo que **menos te gasta** ⌚ e **mais te atende** 🧑🏻‍⚕️.
+> priorizamos os hospitais próximos e vazios (resdistribuindo as filas)
 
 # Install Backend Deps
 1. cd backend
