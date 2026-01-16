@@ -8,6 +8,8 @@ Explique as suas necessidades,
 a menostempo acha um hospital próximo que **menos te gasta** ⌚ e **mais te atende** 🧑🏻‍⚕️.
 > priorizamos os hospitais próximos e vazios (resdistribuindo as filas)
 
+# open source 🔓
+
 # Install Backend Deps
 1. cd backend
 1. python3.12 -m venv .env
