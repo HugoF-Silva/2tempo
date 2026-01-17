@@ -1,4 +1,4 @@
-# WAZE DO SUS -> www.menostempo.com.br :)
+# WAZE DO SUS -> www.menostempo.com.br 
 - recomendamos pra você o hospital + adequado dependendo do que precisa
 
 # Como funciona?
@@ -6,7 +6,7 @@ Explique as suas necessidades,
 > tá com algum sintoma? precisa de algum remédio?
 
 a menostempo acha um hospital próximo que **menos te gasta** ⌚ e **mais te atende** 🧑🏻‍⚕️.
-> priorizamos os hospitais próximos e vazios (resdistribuindo as filas)
+> priorizamos os hospitais próximos e vazios (resditribuindo as filas)
 
 # open source 🔓
 
